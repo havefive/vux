@@ -111,6 +111,11 @@ props:
     default: ok(确定)
     en: button text
     zh-CN: 按钮文字
+  hide-on-blur:
+    type: Boolean
+    default: false
+    en: if closing dialog when clicking on mask
+    zh-CN: 是否在点击遮罩时自动关闭弹窗
   mask-transition:
     type: String
     default: vux-fade
@@ -129,7 +134,15 @@ events:
   on-show:
     en: emits when dialog shows
     zh-CN: 弹窗显示时触发
+  on-hide:
+    en: emits when dialog is closed
+    zh-CN: 弹窗关闭时触发
 changes:
+  v2.5.5:
+    en:
+      - '[feature] Support hideOnBlur #1742'
+    zh-CN:
+      - '[feature] 支持 hideOnBlur #1742'
   v2.2.0:
     en:
       - '[feature] Add prop:content'

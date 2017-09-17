@@ -15,6 +15,7 @@ const TEMPLATE = `
 
 const Animate = require('./animate')
 const { getElement, getComputedStyle, easeOutCubic, easeInOutCubic } = require('./util')
+const passiveSupported = require('../../libs/passive_supported')
 
 var Scroller = function (container, options) {
   var self = this
@@ -47,21 +48,22 @@ var Scroller = function (container, options) {
   var html = ''
   if (data.length && data[0].constructor === Object) {
     data.forEach(function (row) {
-      html += '<div class="' + self.options.itemClass + '" data-value=' + JSON.stringify({value: row.value}) + '>' + row.name + '</div>'
+      html += '<div class="' + self.options.itemClass + '" data-value=' + JSON.stringify({value: encodeURI(row.value)}) + '>' + row.name + '</div>'
     })
   } else {
     data.forEach(function (val) {
-      html += '<div class="' + self.options.itemClass + '" data-value=' + JSON.stringify({value: val}) + '>' + val + '</div>'
+      html += '<div class="' + self.options.itemClass + '" data-value=' + JSON.stringify({value: encodeURI(val)}) + '>' + val + '</div>'
     })
   }
   content.innerHTML = html
 
   self.__container.appendChild(component)
 
-  self.__itemHeight = parseInt(getComputedStyle(indicator, 'height'), 10)
+  self.__itemHeight = parseFloat(getComputedStyle(indicator, 'height'), 10)
 
   self.__callback = options.callback || function (top) {
     content.style.webkitTransform = 'translate3d(0, ' + (-top) + 'px, 0)'
+    content.style.transform = 'translate3d(0, ' + (-top) + 'px, 0)'
   }
 
   var rect = component.getBoundingClientRect()
@@ -71,7 +73,7 @@ var Scroller = function (container, options) {
   self.__setDimensions(component.clientHeight, content.offsetHeight)
 
   if (component.clientHeight === 0) {
-    self.__setDimensions(parseInt(getComputedStyle(component, 'height'), 10), 204)
+    self.__setDimensions(parseFloat(getComputedStyle(component, 'height'), 10), 204)
   }
   self.select(self.options.defaultValue, false)
 
@@ -91,14 +93,17 @@ var Scroller = function (container, options) {
     self.__doTouchEnd(e.timeStamp)
   }
 
-  component.addEventListener('touchstart', touchStartHandler, false)
-  component.addEventListener('mousedown', touchStartHandler, false)
+  const willPreventDefault = passiveSupported ? {passive: false} : false
+  const willNotPreventDefault = passiveSupported ? {passive: true} : false
 
-  component.addEventListener('touchmove', touchMoveHandler, false)
-  component.addEventListener('mousemove', touchMoveHandler, false)
+  component.addEventListener('touchstart', touchStartHandler, willPreventDefault)
+  component.addEventListener('mousedown', touchStartHandler, willPreventDefault)
 
-  component.addEventListener('touchend', touchEndHandler, false)
-  component.addEventListener('mouseup', touchEndHandler, false)
+  component.addEventListener('touchmove', touchMoveHandler, willNotPreventDefault)
+  component.addEventListener('mousemove', touchMoveHandler, willNotPreventDefault)
+
+  component.addEventListener('touchend', touchEndHandler, willNotPreventDefault)
+  component.addEventListener('mouseup', touchEndHandler, willNotPreventDefault)
 }
 
 var members = {
@@ -156,7 +161,7 @@ var members = {
 
     var children = self.__content.children
     for (var i = 0, len = children.length; i < len; i++) {
-      if (JSON.parse(children[i].dataset.value).value === value) {
+      if (decodeURI(JSON.parse(children[i].dataset.value).value) === value) {
         self.selectByIndex(i, animate)
         return
       }
@@ -208,7 +213,7 @@ var members = {
       self.__prevValue = self.value
     }
 
-    self.value = JSON.parse(selectedItem.dataset.value).value
+    self.value = decodeURI(JSON.parse(selectedItem.dataset.value).value)
   },
 
   __scrollingComplete () {

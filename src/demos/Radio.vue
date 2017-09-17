@@ -4,12 +4,12 @@
       <radio :options="radio001" @on-change="change"></radio>
     </group>
 
-    <group title="preselect 'China'">
-      <radio :options="radio001" value="China"></radio>
+    <group :title="$t('pre-select China(disabled)')">
+      <radio :options="radio001" value="China" disabled></radio>
     </group>
 
     <group :title="'fill mode value is '+radio001Value">
-      <radio fill-mode :options="radio001" v-model="radio001Value" @on-change="change"></radio>
+      <radio :selected-label-style="{color: '#FF9900'}" fill-mode :options="radio001" v-model="radio001Value" @on-change="change"></radio>
     </group>
 
     <group title="fill mode with custom placeholder and label">
@@ -31,6 +31,11 @@
     </group>
   </div>
 </template>
+
+<i18n>
+'pre-select China(disabled)':
+  zh-CN: 默认值 China(禁用操作)
+</i18n>
 
 <script>
 import { Radio, Group } from 'vux'
@@ -57,8 +62,8 @@ export default {
     }
   },
   methods: {
-    change (value) {
-      console.log('change:', value)
+    change (value, label) {
+      console.log('change:', value, label)
     }
   }
 }

@@ -12,13 +12,15 @@
       <p slot="footer" v-show="error" class="error">{{error}}</p>
     </checklist>
 
-    <checklist :title="$t('preselect China and Japan')" label-position="left" :options="commonList" v-model="checklist002" @on-change="change"></checklist>
+    <checklist :title="$t('preselect China and Japan(disabled)')" disabled label-position="left" :options="commonList" v-model="checklist002" @on-change="change"></checklist>
 
     <checklist :title="$t('set max=2')" :options="commonList" v-model="checklist003" :max=2 @on-change="change"></checklist>
 
     <checklist :title="$t('set random order')" random-order :options="checklist005" v-model="checklist005Value" @on-change="change"></checklist>
 
     <checklist :title="$t('Option Array with key and value(key must be string)')" :options="objectList" v-model="objectListValue" @on-change="change"></checklist>
+
+    <checklist :title="$t('Option is Object with InlineDesc')" :options="inlineDescList" v-model="inlineDescListValue" @on-change="change"></checklist>
 
     <checklist :title="$t('Async list')" :max="3" :options="asyncList" v-model="asyncListValue" @on-change="change"></checklist>
 
@@ -32,14 +34,16 @@
 <i18n>
 handle errors:
   zh-CN: 处理错误
-preselect China and Japan:
-  zh-CN: 默认选中China和Japan
+preselect China and Japan(disabled):
+  zh-CN: 默认选中China和Japan(禁用操作)
 set max=2:
   zh-CN: 最多可选中2个
 set random order:
   zh-CN: 打乱选项顺序
 'Option Array with key and value(key must be string)':
   zh-CN: 使用Object类型的选项列表，key必须为字符串
+Option is Object with InlineDesc:
+  zh-CN: 包含inlineDesc属性的Object类型选项列表
 Async list:
   zh-CN: 异步选项列表
 </i18n>
@@ -96,6 +100,12 @@ export default {
       checklist005Value: [],
       objectList: [{key: '1', value: '001 value'}, {key: '2', value: '002 value'}, {key: '3', value: '003 value'}],
       objectListValue: ['1', '2'],
+      inlineDescList: [
+        {key: '1', value: 'tiger is good', inlineDesc: 'Tiger is the king of mountain'},
+        {key: '2', value: 'lion is better', inlineDesc: 'Lion is the king of woods'},
+        {key: '3', value: 'camel is best, no inline-desc'}
+      ],
+      inlineDescListValue: [1],
       asyncList: [],
       asyncListValue: []
     }

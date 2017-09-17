@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/airyland/vux/master/logo.png">
   </a>
 </p>
-<p align="center">Be Cool with Vue@2.x and WeUI.</p>
+<p align="center">Be Cool with Vue@^2.3.0 and WeUI.</p>
 
 <p align="center">
    <a href="https://vux.li/demos/v2?x-page=v2-doc-home">
@@ -11,7 +11,7 @@
   </a>
   <br>
   <a href="https://vux.li/demos/v2?x-page=v2-doc-home">
-    online demo >>
+    Live Demo >>
   </a>
   <br>
   <br>
@@ -52,13 +52,11 @@
   <br>
 </p>
 
-## 什么时候你应该放弃使用 VUX
+## Requirements
 
-- 不会用 Node.js 不想用 Node.js。
-- webpack, yarn, npm 安装半天还没装上，报错不知道如何解决，并且希望作者从如何安装 Node.js 开始来教你们入门。
-- 发现有坑，但就是憋着不说，就喜欢说 `VUX` 这货有坑。
-
-因为不想接收和组件库无关的怨气和负能量，请自行放弃 `VUX`，拜托了。怨气满满的 Issue 也不会被处理。
++ vue@^2.3.0(for .sync modifier)
++ webpack@^2.0
++ node@^7.6(development)
 
 ## Docs
 
@@ -81,6 +79,7 @@ npm run dev // or yarn dev
 + [lichunqiang](https://github.com/lichunqiang)
 + [graysheeep](https://github.com/graysheeep)
 + [unclay](https://github.com/unclay)
++ [wg5945](https://github.com/wg5945)
 
 ## Vux is Inspired or Powered By:
 + [Vue](https://github.com/vuejs/vue)
@@ -93,6 +92,7 @@ npm run dev // or yarn dev
 + [SUI Mobile](https://github.com/sdc-alibaba/SUI-Mobile)
 + [PhotoSwipe](https://github.com/dimsemenov/PhotoSwipe)
 + [WePayUI](https://github.com/wepayui/wepayui)
++ [autosize](https://github.com/jackmoore/autosize)(MIT)
 
 ## License
 
@@ -100,7 +100,7 @@ MIT
 
 ## Donate
 
-It takes much time and energy to maintain and improve this project. If Vux helps you, you may want to buy me a coffee :).
+It takes much time and energy to maintain and improve this project. If VUX do help you, you may want to buy me a coffee :).
 
 <p align="center">
   <img src="https://o3e85j0cv.qnssl.com/vux_pay.png" width="450">

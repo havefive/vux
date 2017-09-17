@@ -1,6 +1,6 @@
 <template>
   <transition :name="`vux-popup-animate-${position}`">
-    <div v-show="show" :style="styles" class="vux-popup-dialog" :class="[`vux-popup-${position}`, show ? 'vux-popup-show' : '']">
+    <div v-show="show && !initialShow" :style="styles" class="vux-popup-dialog" :class="[`vux-popup-${position}`, show ? 'vux-popup-show' : '']">
       <slot></slot>
     </div>
   </transition>
@@ -8,8 +8,10 @@
 
 <script>
 import Popup from './popup'
+import dom from '../../libs/dom'
 
 export default {
+  name: 'popup',
   props: {
     value: Boolean,
     height: {
@@ -33,9 +35,21 @@ export default {
       type: String,
       default: 'bottom'
     },
-    maxHeight: String
+    maxHeight: String,
+    popupStyle: Object,
+    hideOnDeactivated: {
+      type: Boolean,
+      default: true
+    }
+  },
+  created () {
+    // get global layout config
+    if (this.$vux && this.$vux.config && this.$vux.config.$layout === 'VIEW_BOX') {
+      this.layout = 'VIEW_BOX'
+    }
   },
   mounted () {
+    this.$overflowScrollingList = document.querySelectorAll('.vux-fix-safari-overflow-scrolling')
     this.$nextTick(() => {
       const _this = this
       this.popup = new Popup({
@@ -48,15 +62,24 @@ export default {
         },
         onClose () {
           _this.show = false
-          if (Object.keys(window.__$vuxPopups).length > 1) return
+          if (window.__$vuxPopups && Object.keys(window.__$vuxPopups).length > 1) return
           if (document.querySelector('.vux-popup-dialog.vux-popup-mask-disabled')) return
           setTimeout(() => {
             _this.fixSafariOverflowScrolling('touch')
           }, 300)
         }
       })
-      this.$overflowScrollingList = document.querySelectorAll('.vux-fix-safari-overflow-scrolling')
+      if (this.value) {
+        this.popup.show()
+      }
+      this.initialShow = false
     })
+  },
+  deactivated () {
+    if (this.hideOnDeactivated) {
+      this.show = false
+    }
+    this.removeModalClassName()
   },
   methods: {
     /**
@@ -69,10 +92,15 @@ export default {
       for (let i = 0; i < this.$overflowScrollingList.length; i++) {
         this.$overflowScrollingList[i].style.webkitOverflowScrolling = type
       }
+    },
+    removeModalClassName () {
+      this.layout === 'VIEW_BOX' && dom.removeClass(document.body, 'vux-modal-open')
     }
   },
   data () {
     return {
+      layout: '',
+      initialShow: true,
       hasFirstShow: false,
       show: this.value
     }
@@ -91,16 +119,25 @@ export default {
       }
 
       this.isTransparent && (styles['background'] = 'transparent')
+      if (this.popupStyle) {
+        for (let i in this.popupStyle) {
+          styles[i] = this.popupStyle[i]
+        }
+      }
       return styles
     }
   },
   watch: {
+    value (val) {
+      this.show = val
+    },
     show (val) {
       this.$emit('input', val)
       if (val) {
-        this.popup.show()
+        this.popup && this.popup.show()
         this.$emit('on-show')
         this.fixSafariOverflowScrolling('auto')
+        this.layout === 'VIEW_BOX' && dom.addClass(document.body, 'vux-modal-open')
         if (!this.hasFirstShow) {
           this.$emit('on-first-show')
           this.hasFirstShow = true
@@ -113,16 +150,15 @@ export default {
           if (!document.querySelector('.vux-popup-dialog.vux-popup-show')) {
             this.fixSafariOverflowScrolling('touch')
           }
+          this.removeModalClassName()
         }, 200)
       }
-    },
-    value (val) {
-      this.show = val
     }
   },
   beforeDestroy () {
     this.popup.destroy()
     this.fixSafariOverflowScrolling('touch')
+    this.removeModalClassName()
   }
 }
 </script>
@@ -197,5 +233,11 @@ export default {
 
 .vux-popup-animate-top-enter, .vux-popup-animate-top-leave-active {
   transform: translate3d(0, -100%, 0);
+}
+
+.vux-modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 </style>

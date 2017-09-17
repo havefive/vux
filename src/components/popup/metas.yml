@@ -44,6 +44,17 @@ props:
     default: true
     en: whether show mask
     zh-CN: 是否显示遮罩
+  popup-style:
+    version: v2.5.2
+    type: Object
+    en: popup style
+    zh-CN: 弹窗样式，可以用于强制指定 z-index
+  hide-on-deactivated:
+    version: v2.5.5
+    type: Boolean
+    default: true
+    en: whether hide popup on deactived event when using keep-alive
+    zh-CN: 是否在 deactived 事件触发时自动关闭，避免在路由切换时依然显示弹窗
 events:
   on-hide:
     en: emits when then popup is closed
@@ -59,6 +70,41 @@ slots:
     en: content body
     zh-CN: 弹窗主体内容
 changes:
+  v2.5.12:
+    en:
+      - '[fix] clean vux-modal-open on beforeDestroy and deactivated #1921'
+    zh-CN:
+      - '[fix] 在 beforeDestroy 和 deactivated 事件中清除设置于 body 上的 vux-modal-open 类名 #1921'
+  v2.5.11:
+    en:
+      - '[fix] add vux-modal-open only when global config:$layout is VIEW_BOX #1893'
+    zh-CN:
+      - '[fix] 仅在全局配置 $layout = VIEW_BOX 时用 fixed body 的形式阻止页面滚动 #1893'
+  v2.5.10:
+    en:
+      - '[fix] Fix class helper typo issue #1893'
+    zh-CN:
+      - '[fix] 修复 class 工具函数拼写错误 #1893'
+  v2.5.9:
+    en:
+      - '[fix] Fix layout errors when body not set 100% width #1867'
+    zh-CN:
+      - '[feature] 修复当body没有设置100%宽度时出现的布局错乱问题 #1867'
+  v2.5.5:
+    en:
+      - '[feature] Auto hide popup on deactived #1774'
+    zh-CN:
+      - '[feature] 在 deactived 事件触发时自动关闭，避免在路由切换时依然显示弹窗，可以使用 prop:hide-on-deactivated 进行禁用 #1774'
+  v2.5.2:
+    en:
+      - '[feature] Add prop:popup-style #1656'
+    zh-CN:
+      - '[feature] 支持弹窗样式设置 prop:popup-style #1656'
+  v2.3.7:
+    en:
+      - '[fix] Fix missing mask when initial value is true #1555'
+    zh-CN:
+      - '[fix] 修复默认值为 true 时遮罩没有显示的问题 #1555'
   v2.3.3:
     en:
       - '[enhance] Set max-height:100% by default'

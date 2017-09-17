@@ -3,7 +3,6 @@
 @theme-color: #04BE02;
 @opacity-disabled: 0.5;
 
-
 /**
 * actionsheet
 */
@@ -16,7 +15,7 @@
 * datetime
 */
 @datetime-header-item-font-color: @theme-color;
-@datetime-header-item-cancel-font-color: @datetime-header-item-font-color;
+@datetime-header-item-cancel-font-color: #828282;
 @datetime-header-item-confirm-font-color: @datetime-header-item-font-color;
 
 /**
@@ -69,6 +68,8 @@
 @cell-disabled-arrow-color: #e2e2e2;
 @cell-default-arrow-border-width: 2px;
 @cell-default-arrow-width: 6px;
+@cell-value-color: #999;
+@cell-placeholder-color: #999;
 
 /**
 * Mask
@@ -110,7 +111,6 @@
 /**
 * Button
 */
-
 @button-global-border-radius: 5px;
 @button-global-font-color: #FFFFFF;
 @button-global-margin-top: 15px;
@@ -121,6 +121,7 @@
 
 @button-warn-bg-color: #E64340;
 @button-warn-active-color: #CE3C39;
+@button-warn-disabled-bg-color: #EC8B89;
 
 @button-default-bg-color: #F8F8F8;
 @button-default-font-color: #000000;
@@ -131,6 +132,7 @@
 
 @button-primary-bg-color: #1AAD19;
 @button-primary-active-bg-color: #179B16;
+@button-primary-disabled-bg-color: #9ED99D;
 
 /**
 * swipeout
@@ -204,6 +206,18 @@
 @popup-background-color: #eee;
 
 /**
+* popup-header
+*/
+@popup-header-height: 44px;
+@popup-header-bg-color: #fbf9fe;
+@popup-header-font-size: 16px;
+@popup-header-left-text-color: #828282;
+@popup-header-right-text-color: @theme-color;
+@popup-header-title-text-color: #222;
+@popup-header-left-text-padding: 15px;
+@popup-header-right-text-padding: 15px;
+
+/**
 * form-preview
 */
 @form-preview-button-primary-color: #0BB20C;
@@ -231,8 +245,7 @@
 @toast-top: 180px;
 @toast-position-top-offset: 10px;
 @toast-position-bottom-offset: 10px;
-@toast-z-index: 5000;
-
+@toast-z-index: 5001;
 
 /**
 * icon
@@ -248,6 +261,22 @@
 @calendar-disabled-font-color: #c0c0c0;
 @calendar-today-font-color: @theme-color;
 @calendar-date-item-font-size: 16px;
+@calendar-bg-color: #fff;
+@calendar-each-date-item-size: 26px;
+@calendar-each-date-item-line-height: 25px;
+@calendar-header-day-item-color: #000;
+
+/**
+* week-calendar
+*/
+@week-calendar-bg: #fff;
+@week-calendar-each-date-item-size: 26px;
+@week-calendar-each-date-item-line-height: 25px;
+@week-calendar-each-date-item-color: #444;
+@week-calendar-selected-item-bg-color: @theme-color;
+@week-calendar-selected-item-text-color: #fff;
+@week-calendar-dot-color: #f74c31;
+@week-calendar-header-day-item-color: #000;
 
 /**
 * search
@@ -255,3 +284,13 @@
 @search-cancel-font-color: #09BB07;
 @search-bg-color: #EFEFF4;
 @search-placeholder-font-color: #9B9B9B;
+
+/**
+* radio
+*/
+@radio-checked-icon-color: #09BB07;
+
+/**
+* loadmore
+*/
+@load-more-tip-background-color: #fff;

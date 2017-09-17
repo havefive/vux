@@ -11,13 +11,16 @@
       </slot>
       <slot name="left"></slot>
     </div>
-    <h1 class="vux-header-title" @click="$emit('on-click-title')">
+    <h1 class="vux-header-title" @click="$emit('on-click-title')" v-if="!shouldOverWriteTitle">
       <slot>
         <transition :name="transition">
           <span v-show="title">{{title}}</span>
         </transition>
       </slot>
     </h1>
+    <div class="vux-header-title-area" v-if="shouldOverWriteTitle">
+      <slot name="overwrite-title"></slot>
+    </div>
     <div class="vux-header-right">
       <a class="vux-header-more" @click.preventDefault @click="$emit('on-click-more')" v-if="rightOptions.showMore"></a>
       <slot name="right"></slot>
@@ -35,6 +38,7 @@ back_text:
 import objectAssign from 'object-assign'
 
 export default {
+  name: 'x-header',
   props: {
     leftOptions: Object,
     title: String,
@@ -46,6 +50,11 @@ export default {
           showMore: false
         }
       }
+    }
+  },
+  beforeMount () {
+    if (this.$slots['overwrite-title']) {
+      this.shouldOverWriteTitle = true
     }
   },
   computed: {
@@ -64,6 +73,11 @@ export default {
         this.$router ? this.$router.back() : window.history.back()
       }
     }
+  },
+  data () {
+    return {
+      shouldOverWriteTitle: false
+    }
   }
 }
 </script>
@@ -77,18 +91,20 @@ export default {
   box-sizing: border-box;
   background-color: @header-background-color;
 }
-.vux-header .vux-header-title,.vux-header h1 {
-  margin: 0 88px;
+.vux-header .vux-header-title {
   line-height: 40px;
   text-align: center;
-  height: 40px;
   font-size: 18px;
   font-weight: 400;
+  color: @header-title-color;
+}
+.vux-header-title-area, .vux-header .vux-header-title {
+  margin: 0 88px;
+  height: 40px;
   width: auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: @header-title-color;
 }
 .vux-header .vux-header-title > span {
   display: inline-block;

@@ -8,7 +8,7 @@ tags:
     - 表单
 props:
   value:
-    type: String
+    type: String, Array
     default: ''
     en: calendar value, use `v-modle` for binding
     zh-CN: 当前选中日期，使用`v-model`绑定，默认为空，即选中当天日期
@@ -87,12 +87,90 @@ props:
     default: false
     en: if disable future days
     zh-CN: 禁止选择未来的日期，该选项可以end-date同时使用
+  marks:
+    version: v2.6.0
+    type: Array
+    en: (beta)style marks for specified date list
+    zh-CN: (beta) 自定义日期标记
 slots:
   each-day:
     version: v2.3.5
     en: you can custom how to display each day
     zh-CN: 用以自定义每一天的显示渲染，使用该 slot 就不需要 render-function 了
+events:
+  on-change:
+    en: emits when value is changed
+    zh-CN: 值变化时触发
+  on-view-change:
+    version: v2.5.12
+    params: '(data, index)'
+    en: fires when render month is changed
+    zh-CN: 渲染月份变化时触发。初始化时会触发一次，如果不希望处理初始化时的触发，可以检查第二个参数是否为 0
+methods:
+  getDates:
+    version: v2.5.11
+    en: get current date list
+    zh-CN: 获取当前日期列表
+  switchViewToToday:
+    version: v2.5.12
+    en: render current month
+    zh-CN: 渲染当天所在月份
+  switchViewToMonth:
+    version: v2.5.12
+    params: (year, month)
+    en: render specified year and month
+    zh-CN: 渲染特定年月日期
+  switchViewToCurrentValue:
+    version: v2.5.12
+    en: render with current value's month
+    zh-CN: 渲染当前值所在月份
 changes:
+  v2.6.0:
+    en:
+      - '[feature] (beta) Support prop:marks to style specified date item'
+      - '[fix] fix i18n for days'
+    zh-CN:
+      - '[feature] (beta) 支持属性 marks 用以自定义特定日期显示样式'
+      - '[fix] 修复星期文字 i18n'
+  v2.5.12:
+    en:
+      - '[feature] add method:switchViewToToday switchViewToMonth'
+      - '[feature] support event:on-view-change'
+    zh-CN:
+      - '[feature] 支持 switchViewToToday, switchViewToMonth 等手动渲染方法'
+      - '[feature] 支持事件 on-view-change，方便切换月份时请求数据'
+  v2.5.11:
+    en:
+      - '[feature] support method:getDates'
+      - '[feature] support less variable @calendar-bg-color'
+    zh-CN:
+      - '[feature] 支持方法 getDates 用于需要获取渲染日期列表的场合'
+      - '[feature] 支持 less 变量 @calendar-bg-color'
+  v2.5.9:
+    en:
+      - '[fix] donot set value to empty string when clicking on current selected item #1862'
+    zh-CN:
+      - '[fix] 点击当前日期项时不把值置为空 #1862'
+  v2.5.8:
+    en:
+      - '[fix] fix on-change event fires twice #1847'
+    zh-CN:
+      - '[fix] 修复 on-change 事件触发两次问题 #1847'
+  v2.5.5:
+    en:
+      - '[feature] support multi select #1446 #1467'
+    zh-CN:
+      - '[feature] 支持多选 #1446 #1467'
+  v2.4.0:
+    en:
+      - '[enhance] re-render when render-month is changed'
+    zh-CN:
+      - '[enhance] 当 render-month 变化时重新渲染日历'
+  v2.3.8:
+    en:
+      - '[enhance] prevent from clicking invisiable date #1564'
+    zh-CN:
+      - '[enhance] 不可见日期不可点击 #1564'
   v2.3.6:
     en:
       - '[change] render-function params day => date #1361'

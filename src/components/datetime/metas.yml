@@ -17,7 +17,7 @@ props:
     type: String
     default: 'YYYY-MM-DD'
     en: date format
-    zh-CN: 时间格式
+    zh-CN: 时间格式，不支持特殊字符，只能类似 YYYY-MM-DD HH:mm:ss 这样的格式
   title:
     type: String
     default: ''
@@ -101,11 +101,11 @@ props:
   start-date:
     type: String
     en: start date
-    zh-CN: '限定最小日期，注意该限制只能限定到日期，不能限定到小时分钟。小时限定请使用`min-hour`和`max-hour`'
+    zh-CN: '限定最小日期，格式必须为 YYYY-MM-DD，注意该限制只能限定到日期，不能限定到小时分钟。小时限定请使用`min-hour`和`max-hour`'
   end-date:
     type: String
     en: end date
-    zh-CN: 限定最大日期，注意该限制只能限定到日期，不能限定到小时分钟
+    zh-CN: 限定最大日期，格式必须为 YYYY-MM-DD，注意该限制只能限定到日期，不能限定到小时分钟
   required:
     type: Boolean
     default: false
@@ -120,6 +120,25 @@ props:
     version: v2.3.6
     en: readonly mode, show like a cell
     zh-CN: 只读模式，显示类似于 cell
+  show:
+    version: v2.3.7
+    type: Boolean
+    en: control visibility of datetime, require vue^2.3
+    zh-CN: 控制显示，要求 vue^2.3
+  minute-list:
+    version: v2.3.7
+    type: Array
+    en: specify minute list, for instance ['00', '15', '30', '45']
+    zh-CN: 定义分钟列表，比如 ['00', '15', '30', '45']
+  default-selected-value:
+    version: v2.4.1
+    en: set default selected value, works only when value is empty
+    zh-CN: 设置默认选中日期，当前 value 为空时有效
+  compute-hours-function:
+    version: v2.5.5
+    type: Function
+    en: 'dynamically set hours list, params `(value, isToday, generateRange)`'
+    zh-CN: '动态设置小时列表，参数为 `(value, isToday, generateRange)`'
 slots:
   title:
     version: v2.3.6
@@ -131,13 +150,58 @@ events:
     en: $emits when value changes, `(newVal)`
     zh-CN: 表单值变化时触发, 参数 `(newVal)`
 changes:
-  next:
+  v2.6.0:
     en:
-      - '[fix] Fix range error with format YYYY-MM #1528'
-      - '[feature] Add prop:hourList prop:minuteList'
+      - '[fix] fix i18n for cancel_text confirm_text'
     zh-CN:
+      - '[fix] 修复取消文字、确认文字国际化显示问题'
+  v2.5.11:
+    en:
+      - '[fix] fix :show.syc="false" do no work #1918'
+      - '[fix] fix prop:compute-hours-function not working when month is changed'
+    zh-CN:
+      - '[fix] 修复 :show.sync 设为 false 无效 #1918'
+      - '[fix] 修复特定情况下月份变化不会触发小时重新渲染的问题'
+  v2.5.10:
+    en:
+      - '[feature] support @cell-value-color #1874'
+    zh-CN:
+      - '[feature] 值文字颜色受控于 @cell-value-color #1874'
+  v2.5.9:
+    en:
+      - '[fix] fix error when format is YYYY #1861'
+    zh-CN:
+      - '[fix] 修复格式为 YYYY 时的报错 #1861'
+  v2.5.5:
+    en:
+      - '[feature] support prop:compute-hours-function #1749'
+      - '[enhance] better mask transition'
+    zh-CN:
+      - '[feature] 支持动态设置小时列表 #1749'
+      - '[enhance] 更加流畅的遮罩层动画'
+  v2.4.1:
+    en:
+      - '[fix] Re-render when readonly is changed #1593'
+      - '[feature] Support prop:default-selected-value #1576'
+    zh-CN:
+      - '[fix] readonly 值变化时重新渲染 #1593'
+      - '[feature] 支持通过 prop:default-selected-value 设置默认选中日期 #1576'
+  v2.4.0:
+    en:
+      - '[enhance] use the same popup header style as popup-picker'
+    zh-CN:
+      - '[enhance] 统一弹窗头部样式，和 popup-picker 一致'
+  v2.3.7:
+    en:
+      - '[feature] Add prop:show to control visibility #1538'
+      - '[fix] Fix range error with format YYYY-MM #1358'
+      - '[feature] Add prop:hourList prop:minuteList'
+      - '[fix] startDate year should overwrite minYear #1358'
+    zh-CN:
+      - '[feature] 可以使用 :show.sync 来控制控件显示 #1358'
       - '[fix] 修复格式为 YYYY-MM 时的日期范围错误 #1528'
       - '[feature] 支持通过 prop:hourList prop:minuteList 自定义小时和分钟列表'
+      - '[fix] 开始日期年份应该覆盖最小年份(minYear) #1358'
   v2.3.6:
     en:
       - '[feature] Add slot:title'

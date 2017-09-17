@@ -1,10 +1,10 @@
 <template>
-  <div class="vux-x-dialog" @touchmove="onTouchMove">
+  <div class="vux-x-dialog">
     <transition :name="maskTransition">
-      <div class="weui-mask" @click="hideOnBlur && (currentValue = false)" v-show="currentValue"></div>
+      <div class="weui-mask" @click="hide" v-show="show"></div>
     </transition>
     <transition :name="dialogTransition">
-      <div :class="dialogClass" v-show="currentValue" :style="dialogStyle">
+      <div :class="dialogClass" v-show="show" :style="dialogStyle">
         <slot></slot>
       </div>
     </transition>
@@ -12,9 +12,17 @@
 </template>
 
 <script>
+import preventBodyScrollMixin from '../../mixins/prevent-body-scroll'
+
 export default {
+  mixins: [preventBodyScrollMixin],
+  name: 'x-dialog',
+  model: {
+    prop: 'show',
+    event: 'change'
+  },
   props: {
-    value: {
+    show: {
       type: Boolean,
       default: false
     },
@@ -34,29 +42,32 @@ export default {
     dialogStyle: Object,
     scroll: {
       type: Boolean,
-      default: true
+      default: true,
+      validator (val) {
+        if (process.env.NODE_ENV === 'development' && val === false) {
+          console.warn('[VUX warn] x-dialog:scroll 已经废弃。如果你是 100% 布局，请参照文档配置 $layout 以实现阻止滚动')
+        }
+        return true
+      }
     }
   },
   watch: {
-    value: {
-      handler: function (val) {
-        this.currentValue = val
-      },
-      immediate: true
-    },
-    currentValue (val) {
+    show (val) {
+      this.$emit('update:show', val)
       this.$emit(val ? 'on-show' : 'on-hide')
-      this.$emit('input', val)
-    }
-  },
-  data () {
-    return {
-      currentValue: false
+      if (val) {
+        this.addModalClassName()
+      } else {
+        this.removeModalClassName()
+      }
     }
   },
   methods: {
-    onTouchMove: function (event) {
-      !this.scroll && event.preventDefault()
+    hide () {
+      if (this.hideOnBlur) {
+        this.$emit('update:show', false)
+        this.$emit('change', false)
+      }
     }
   }
 }

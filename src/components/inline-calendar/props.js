@@ -1,6 +1,6 @@
 export default () => ({
   value: {
-    type: String,
+    type: [String, Array],
     default: ''
   },
   renderMonth: {
@@ -45,16 +45,13 @@ export default () => ({
       return {}
     }
   },
-  weeks: {
-    type: Array,
-    default () {
-      return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-    }
-  },
   weeksList: {
     type: Array,
-    default () {
-      return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+    validator (val) {
+      if (val) {
+        return val.length === 7 || val.length === 0
+      }
+      return true
     }
   },
   renderFunction: {
@@ -72,5 +69,11 @@ export default () => ({
   disableFuture: {
     type: Boolean,
     default: false
+  },
+  marks: {
+    type: Array,
+    default () {
+      return []
+    }
   }
 })

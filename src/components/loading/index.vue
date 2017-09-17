@@ -1,6 +1,6 @@
 <template>
-  <transition name="vux-mask">
-    <div class="weui-loading_toast" v-show="show">
+  <transition :name="transition">
+    <div class="weui-loading_toast vux-loading" v-show="show">
       <div class="weui-mask_transparent"></div>
       <div class="weui-toast" :style="{ position: position }">
         <i class="weui-loading weui-icon_toast"></i>
@@ -18,28 +18,23 @@ loading:
 
 <script>
 export default {
+  name: 'loading',
+  model: {
+    prop: 'show',
+    event: 'change'
+  },
   props: {
-    value: {
-      type: Boolean,
-      default: false
-    },
+    show: Boolean,
     text: String,
-    position: String
-  },
-  created () {
-    this.show = this.value
-  },
-  data () {
-    return {
-      show: false
+    position: String,
+    transition: {
+      type: String,
+      default: 'vux-mask'
     }
   },
   watch: {
-    value (val) {
-      this.show = val
-    },
     show (val) {
-      this.$emit('input', val)
+      this.$emit('update:show', val)
     }
   }
 }
@@ -50,6 +45,9 @@ export default {
 @import '../../styles/weui/widget/weui_tips/weui_toast';
 @import '../../styles/weui/widget/weui-loading/weui-loading.less';
 
+.vux-loading .weui-toast {
+  z-index: 5001;
+}
 .weui-icon_toast.weui-loading {
   margin: 30px 0 0;
   width: 38px;

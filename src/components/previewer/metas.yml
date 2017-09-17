@@ -24,6 +24,8 @@ extra:
       h: 900
     }]
     ```
+    
+    <p class="warning">before v2.4.0, `w` and `h` should be specified.</p>
 
     Prevewing an image by index:
 
@@ -48,6 +50,8 @@ extra:
     }]
     ```
 
+    <p class="warning">注意在 v2.4.0 之前 w 和 h 都必须填写</p>
+
     显示特定index的图片，使用`ref`:
 
     ``` js
@@ -67,7 +71,33 @@ events:
     version: v2.2.1-rc.4
     en: emits after closing
     zh-CN: 关闭时触发
+methods:
+  goTo:
+    version: v2.5.10
+    params: '(index)'
+    en: go to specified image
+    zh-CN: 跳转到特定图片
+  prev:
+    version: v2.5.10
+    en: go to previous image
+    zh-CN: 跳转到上一张
+  v2.5.10:
+    version: v2.5.10
+    en: go to next image
+    zh-CN: 跳转到下一张
 changes:
+  v2.5.10:
+    en:
+      - '[enhance] Support method:goTo  #1888'
+    zh-CN:
+      - '[enhance] 支持 goTo 方法 #1888'
+  v2.4.0:
+    en:
+      - '[enhance] Use src as msrc by default'
+      - '[enhance] No more force setting width and height #1426'
+    zh-CN:
+      - '[enhance] 使用图片作为缩略图，防止先显示黑色区域'
+      - '[enhance] 不再强制要求设置宽高 #1426'
   v2.2.1-rc.4:
     en:
       - '[enhance] Increase the closing event #1245'

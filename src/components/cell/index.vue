@@ -13,7 +13,7 @@
     </div>
     <div class="vux-cell-bd" :class="{'vux-cell-primary': primary === 'title' && valueAlign !== 'left'}">
       <p>
-        <label class="vux-label" :style="getLabelStyles()" v-if="title || hasTitleSlot">
+        <label class="vux-label" :style="getLabelStyles()" :class="labelClass" v-if="title || hasTitleSlot">
           <slot name="title">{{ title }}</slot>
         </label>
         <slot name="after-title"></slot>
@@ -37,6 +37,7 @@ import { go } from '../../libs/router'
 import props from './props'
 
 export default {
+  name: 'cell',
   components: {
     InlineDesc
   },
@@ -52,6 +53,11 @@ export default {
         'vux-cell-arrow-transition': !!this.arrowDirection,
         'vux-cell-arrow-up': this.arrowDirection === 'up',
         'vux-cell-arrow-down': this.arrowDirection === 'down'
+      }
+    },
+    labelClass () {
+      return {
+        'vux-cell-justify': this.$parent.labelAlign === 'justify' || this.$parent.$parent.labelAlign === 'justify'
       }
     }
   },

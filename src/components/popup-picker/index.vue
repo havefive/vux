@@ -2,17 +2,17 @@
   <div class="vux-cell-box">
     <div class="weui-cell vux-tap-active weui-cell_access" @click="onClick" v-show="showCell">
       <div class="weui-cell__hd">
-        <slot name="title" label-class="weui-label" :label-style="labelStyles" a="b">
-          <label class="weui-label" :style="labelStyles" v-if="title" v-html="title"></label>
+        <slot name="title" label-class="weui-label" :label-style="labelStyles" :label-title="title">
+          <label class="weui-label" :class="labelClass" :style="labelStyles" v-if="title" v-html="title"></label>
         </slot>
         <inline-desc v-if="inlineDesc">{{ inlineDesc }}</inline-desc>
       </div>
       <div class="vux-cell-primary vux-popup-picker-select-box">
         <div class="vux-popup-picker-select" :style="{textAlign: valueTextAlign}">
-          <span class="vux-popup-picker-value" v-if="!displayFormat && !showName && value.length">{{value | array2string}}</span>
-          <span class="vux-popup-picker-value" v-if="!displayFormat && showName && value.length">{{value | value2name(data)}}</span>
-          <span class="vux-popup-picker-value" v-if="displayFormat && value.length">{{ displayFormat(value, value2name(value, data)) }}</span>
-          <span v-if="!value.length && placeholder" v-html="placeholder" class="vux-popup-picker-placeholder"></span>
+          <span class="vux-popup-picker-value vux-cell-value" v-if="!displayFormat && !showName && value.length">{{value | array2string}}</span>
+          <span class="vux-popup-picker-value vux-cell-value" v-if="!displayFormat && showName && value.length">{{value | value2name(data)}}</span>
+          <span class="vux-popup-picker-value vux-cell-value" v-if="displayFormat && value.length">{{ displayFormat(value, value2name(value, data)) }}</span>
+          <span v-if="!value.length && placeholder" v-text="placeholder" class="vux-popup-picker-placeholder vux-cell-placeholder"></span>
         </div>
       </div>
       <div class="weui-cell__ft">
@@ -20,9 +20,15 @@
     </div>
 
     <div v-transfer-dom="isTransferDom">
-      <popup v-model="showValue" class="vux-popup-picker" :id="`vux-popup-picker-${uuid}`" @on-hide="onPopupHide" @on-show="onPopupShow">
+      <popup
+      v-model="showValue"
+      class="vux-popup-picker"
+      :id="`vux-popup-picker-${uuid}`"
+      @on-hide="onPopupHide"
+      @on-show="onPopupShow"
+      :popup-style="popupStyle">
         <div class="vux-popup-picker-container">
-          <div class="vux-popup-picker-header">
+          <div class="vux-popup-picker-header" @touchmove.prevent>
             <flexbox>
               <flexbox-item class="vux-popup-picker-header-menu vux-popup-picker-cancel" @click.native="onHide(false)">{{ cancelText || $t('cancel_text') }}</flexbox-item>
               <flexbox-item class="vux-popup-picker-header-menu vux-popup-picker-header-menu-right" @click.native="onHide(true)">{{ confirmText || $t('confirm_text') }}</flexbox-item>
@@ -68,6 +74,7 @@ const getObject = function (obj) {
 }
 
 export default {
+  name: 'popup-picker',
   directives: {
     TransferDom
   },
@@ -130,15 +137,21 @@ export default {
       type: Boolean,
       default: true
     },
-    columnWidth: Array
+    columnWidth: Array,
+    popupStyle: Object
   },
   computed: {
     labelStyles () {
       return {
         display: 'block',
-        width: this.$parent.labelWidth || this.$parent.$parent.labelWidth,
+        width: this.$parent.labelWidth || this.$parent.$parent.labelWidth || 'auto',
         textAlign: this.$parent.labelAlign || this.$parent.$parent.labelAlign,
         marginRight: this.$parent.labelMarginRight || this.$parent.$parent.labelMarginRight
+      }
+    },
+    labelClass () {
+      return {
+        'vux-cell-justify': this.$parent.labelAlign === 'justify' || this.$parent.$parent.labelAlign === 'justify'
       }
     }
   },
@@ -187,21 +200,26 @@ export default {
           // if set to auto update, do update the value
         }
       }
-      this.$emit('on-shadow-change', getObject(val))
+      const _val = getObject(val)
+      this.$emit('on-shadow-change', _val, value2name(_val, this.data).split(' '))
     }
   },
   watch: {
     value (val) {
       if (JSON.stringify(val) !== JSON.stringify(this.tempValue)) {
         this.tempValue = getObject(val)
+        this.currentValue = getObject(val)
       }
     },
     currentValue (val) {
-      this.$emit('on-change', getObject(val))
       this.$emit('input', getObject(val))
+      this.$emit('on-change', getObject(val))
     },
     show (val) {
       this.showValue = val
+    },
+    showValue (val) {
+      this.$emit('update:show', val)
     }
   },
   data () {
@@ -221,6 +239,9 @@ export default {
 @import '../../styles/variable.less';
 @import '../../styles/1px.less';
 
+.vux-cell-primary {
+  flex: 1;
+}
 .vux-cell-box {
   position: relative;
 }

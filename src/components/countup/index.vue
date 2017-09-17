@@ -1,11 +1,8 @@
-<template>
-  <span>{{startVal}}</span>
-</template>
-
 <script>
 import Countup from 'countup.js'
 
 export default {
+  name: 'countup',
   mounted () {
     this.$nextTick(() => {
       this._countup = new Countup(this.$el, this.startVal, this.endVal, this.decimals, this.duration, this.options)
@@ -15,6 +12,10 @@ export default {
     })
   },
   props: {
+    tag: {
+      type: String,
+      default: 'span'
+    },
     start: {
       type: Boolean,
       default: true
@@ -43,6 +44,9 @@ export default {
         return {}
       }
     }
+  },
+  render (h) {
+    return h(this.tag, {}, [this.startVal])
   },
   watch: {
     start (val) {

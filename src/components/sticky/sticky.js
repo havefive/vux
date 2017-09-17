@@ -34,10 +34,11 @@ export default function (nav, options = {}) {
   }
 
   let navOffsetY = nav.offsetTop - offset
+  scrollBox.removeEventListener('scroll', scrollBox.e)
 
   const getTop = function () {
     if (scrollBox === window) {
-      return document.documentElement.scrollTop
+      return (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop
     } else {
       return scrollBox.scrollTop
     }
@@ -57,9 +58,8 @@ export default function (nav, options = {}) {
     // 大于等于iOS6版本使用sticky
     nav.classList.add('vux-sticky')
   } else {
-    setTimeout(() => {
-      navOffsetY = nav.offsetTop - offset
-      scrollBox.addEventListener('scroll', scrollHandler)
-    }, 1000)
+    navOffsetY = nav.offsetTop - offset
+    scrollBox.e = scrollHandler
+    scrollBox.addEventListener('scroll', scrollHandler)
   }
 }

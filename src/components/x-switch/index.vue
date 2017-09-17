@@ -1,11 +1,12 @@
 <template>
   <div class="vux-x-switch weui-cell weui-cell_switch">
     <div class="weui-cell__bd">
-       <label class="weui-label" :style="labelStyle" v-html="title"></label>
-      <inline-desc v-if="inlineDesc">{{inlineDesc}}</inline-desc>
+      <label class="weui-label" :style="labelStyle" :class="labelClass" v-html="title"></label>
+      <inline-desc v-if="inlineDesc">{{ inlineDesc }}</inline-desc>
     </div>
     <div class="weui-cell__ft">
-      <input class="weui-switch" type="checkbox" :disabled="disabled" v-model="currentValue"/>
+      <input class="weui-switch" type="checkbox" :disabled="disabled" v-model="currentValue" />
+      <div v-if="preventDefault" class="vux-x-switch-overlay" @click="onClick"></div>
     </div>
   </div>
 </template>
@@ -14,6 +15,7 @@
 import InlineDesc from '../inline-desc'
 
 export default {
+  name: 'x-switch',
   components: {
     InlineDesc
   },
@@ -23,8 +25,19 @@ export default {
       let width = Math.min(isHTML ? 5 : (this.title.length + 1), 14) + 'em'
       return {
         display: 'block',
-        width
+        width: this.$parent.labelWidth || width,
+        textAlign: this.$parent.labelAlign
       }
+    },
+    labelClass () {
+      return {
+        'vux-cell-justify': this.$parent.labelAlign === 'justify'
+      }
+    }
+  },
+  methods: {
+    onClick () {
+      this.$emit('on-click', !this.currentValue, this.currentValue)
     }
   },
   props: {
@@ -37,7 +50,8 @@ export default {
       type: Boolean,
       default: false
     },
-    inlineDesc: [String, Boolean, Number]
+    inlineDesc: [String, Boolean, Number],
+    preventDefault: Boolean
   },
   data () {
     return {
@@ -62,6 +76,8 @@ export default {
 
 .weui-cell_switch .weui-cell__ft {
   font-size: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 input.weui-switch[disabled] {
@@ -72,4 +88,14 @@ input.weui-switch[disabled] {
   padding-top: 6px;
   padding-bottom: 6px;
 }
+
+.vux-x-switch-overlay {
+  width: 60px;
+  height: 50px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
 </style>
+

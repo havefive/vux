@@ -2,7 +2,7 @@
   <div class="vux-form-preview weui-form-preview">
     <div class="weui-form-preview__hd">
       <label class="weui-form-preview__label" v-html="headerLabel"></label>
-      <em class="weui-form-preview__value" v-html="headerValue"></em>
+      <em class="weui-form-preview__value" v-html="headerValue || '&nbsp;'"></em>
     </div>
     <div class="weui-form-preview__bd">
       <div class="weui-form-preview__item" v-for="item in bodyItems">
@@ -20,6 +20,7 @@
 import { go } from '../../libs/router'
 
 export default {
+  name: 'form-preview',
   props: ['headerLabel', 'headerValue', 'bodyItems', 'footerButtons', 'name'],
   methods: {
     onButtonClick (cb, link) {

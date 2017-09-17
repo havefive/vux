@@ -47,7 +47,8 @@ store.registerModule('vux', {
 Vue.use(vuexI18n.plugin, store)
 
 // plugins
-import { LocalePlugin, DevicePlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, LoadingPlugin, WechatPlugin, AjaxPlugin, AppPlugin } from 'vux'
+import { ConfigPlugin, BusPlugin, DatetimePlugin, LocalePlugin, DevicePlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, LoadingPlugin, WechatPlugin, AjaxPlugin, AppPlugin } from 'vux'
+
 Vue.use(DevicePlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
@@ -56,6 +57,11 @@ Vue.use(LoadingPlugin)
 Vue.use(WechatPlugin)
 Vue.use(AjaxPlugin)
 Vue.use(LocalePlugin)
+Vue.use(DatetimePlugin)
+Vue.use(BusPlugin)
+Vue.use(ConfigPlugin, {
+  $layout: 'VIEW_BOX' // global config for VUX, since v2.5.12
+})
 
 // test
 if (process.env.platform === 'app') {
@@ -99,11 +105,10 @@ import objectAssign from 'object-assign'
 
 const vuxLocales = require('json-loader!yaml-loader!vux/src/locales/all.yml')
 const componentsLocales = require('json-loader!yaml-loader!src/locales/components.yml')
-const globalLocales = require('json-loader!yaml-loader!src/locales/global_locales.yml') || {en: {}, 'zh-CN': {}}
 
 const finalLocales = {
-  'en': objectAssign(vuxLocales['en'], componentsLocales['en'], globalLocales['en']),
-  'zh-CN': objectAssign(vuxLocales['zh-CN'], componentsLocales['zh-CN'], globalLocales['zh-CN'])
+  'en': objectAssign(vuxLocales['en'], componentsLocales['en']),
+  'zh-CN': objectAssign(vuxLocales['zh-CN'], componentsLocales['zh-CN'])
 }
 
 for (let i in finalLocales) {

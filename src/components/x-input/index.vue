@@ -5,12 +5,13 @@
         <slot name="restricted-label"></slot>
       </div>
       <slot name="label">
-        <label class="weui-label" :style="{width: labelWidth || $parent.labelWidth || labelWidthComputed, textAlign: $parent.labelAlign, marginRight: $parent.labelMarginRight}" v-if="title" v-html="title"></label>
+        <label class="weui-label" :class="labelClass" :style="{width: labelWidth || $parent.labelWidth || labelWidthComputed, textAlign: $parent.labelAlign, marginRight: $parent.labelMarginRight}" v-if="title" v-html="title" :for="`vux-x-input-${uuid}`"></label>
         <inline-desc v-if="inlineDesc">{{inlineDesc}}</inline-desc>
       </slot>
     </div>
     <div class="weui-cell__bd weui-cell__primary" :class="placeholderAlign ? `vux-x-input-placeholder-${placeholderAlign}` : ''">
       <input
+      :id="`vux-x-input-${uuid}`"
       v-if="!type || type === 'text'"
       class="weui-input"
       :maxlength="max"
@@ -31,6 +32,7 @@
       @keyup="onKeyUp"
       ref="input"/>
       <input
+      :id="`vux-x-input-${uuid}`"
       v-if="type === 'number'"
       class="weui-input"
       :maxlength="max"
@@ -51,6 +53,7 @@
       @keyup="onKeyUp"
       ref="input"/>
       <input
+      :id="`vux-x-input-${uuid}`"
       v-if="type === 'email'"
       class="weui-input"
       :maxlength="max"
@@ -71,6 +74,7 @@
       @keyup="onKeyUp"
       ref="input"/>
       <input
+      :id="`vux-x-input-${uuid}`"
       v-if="type === 'password'"
       class="weui-input"
       :maxlength="max"
@@ -91,6 +95,7 @@
       @keyup="onKeyUp"
       ref="input"/>
       <input
+      :id="`vux-x-input-${uuid}`"
       v-if="type === 'tel'"
       class="weui-input"
       :maxlength="max"
@@ -136,6 +141,8 @@ import isMobilePhone from 'validator/lib/isMobilePhone'
 
 import Debounce from '../../tools/debounce'
 
+import mask from 'vanilla-masker'
+
 const validators = {
   'email': {
     fn: isEmail,
@@ -155,11 +162,16 @@ const validators = {
   }
 }
 export default {
+  name: 'x-input',
   created () {
-    this.currentValue = this.value || ''
-    if (!this.title && !this.placeholder && !this.currentValue) {
-      console.warn('no title and no placeholder?')
+    this.currentValue = (this.value === undefined || this.value === null) ? '' : (this.mask ? this.maskValue(this.value) : this.value)
+
+    if (process.env.NODE_ENV === 'development') {
+      if (!this.title && !this.placeholder && !this.currentValue) {
+        console.warn('no title and no placeholder?')
+      }
     }
+
     if (this.required && !this.currentValue) {
       this.valid = false
     }
@@ -170,7 +182,7 @@ export default {
       }, this.debounce)
     }
   },
-  mounted () {
+  beforeMount () {
     if (this.$slots && this.$slots['restricted-label']) {
       this.hasRestrictedLabel = true
     }
@@ -234,7 +246,8 @@ export default {
     iconType: String,
     debounce: Number,
     placeholderAlign: String,
-    labelWidth: String
+    labelWidth: String,
+    mask: String
   },
   computed: {
     labelStyles () {
@@ -242,6 +255,11 @@ export default {
         width: this.labelWidthComputed || this.$parent.labelWidth || this.labelWidthComputed,
         textAlign: this.$parent.labelAlign,
         marginRight: this.$parent.labelMarginRight
+      }
+    },
+    labelClass () {
+      return {
+        'vux-cell-justify': this.$parent.labelAlign === 'justify' || this.$parent.$parent.labelAlign === 'justify'
       }
     },
     pattern () {
@@ -270,6 +288,10 @@ export default {
     }
   },
   methods: {
+    maskValue (val) {
+      const val1 = this.mask ? mask.toPattern(val, this.mask) : val
+      return val1
+    },
     reset (value = '') {
       this.dirty = false
       this.currentValue = value
@@ -286,18 +308,18 @@ export default {
     blur () {
       this.$refs.input.blur()
     },
-    focusHandler () {
-      this.$emit('on-focus', this.currentValue)
+    focusHandler ($event) {
+      this.$emit('on-focus', this.currentValue, $event)
     },
-    onBlur () {
+    onBlur ($event) {
       this.setTouched()
       this.validate()
-      this.$emit('on-blur', this.currentValue)
+      this.$emit('on-blur', this.currentValue, $event)
     },
     onKeyUp (e) {
       if (e.key === 'Enter') {
         e.target.blur()
-        this.$emit('on-enter', this.currentValue)
+        this.$emit('on-enter', this.currentValue, e)
       }
     },
     getError () {
@@ -328,7 +350,9 @@ export default {
         if (validator) {
           this.valid = validator[ 'fn' ](this.currentValue)
           if (!this.valid) {
+            this.forceShowError = true
             this.errors.format = validator[ 'msg' ] + '格式不对哦~'
+            this.getError()
             return
           } else {
             delete this.errors.format
@@ -440,7 +464,7 @@ export default {
       } else {
         this.validate()
       }
-      this.$emit('input', newVal)
+      this.$emit('input', this.maskValue(newVal))
       if (this._debounce) {
         this._debounce()
       } else {
@@ -456,6 +480,7 @@ export default {
 @import '../../styles/weui/widget/weui_cell/weui_cell_global';
 @import '../../styles/weui/widget/weui_cell/weui_form/weui_form_common';
 @import '../../styles/weui/widget/weui_cell/weui_form/weui_vcode';
+
 .vux-x-input .vux-x-input-placeholder-right input::-webkit-input-placeholder {
   text-align: right;
 }

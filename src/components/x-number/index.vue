@@ -1,7 +1,7 @@
 <template>
   <div class="weui-cell">
     <div>
-      <p v-html="$t(title)" :style="{width: $parent.labelWidth, textAlign: $parent.labelAlign, marginRight: $parent.labelMarginRight}"></p>
+      <p v-html="$t(title)" :style="{width: $parent.labelWidth, textAlign: $parent.labelAlign, marginRight: $parent.labelMarginRight}" :class="labelClass"></p>
     </div>
     <div class="weui-cell__ft vux-cell-primary" :class="{'vux-number-round': buttonStyle === 'round'}" v-show="!readonly" style="font-size:0">
       <div :style="{float:align}">
@@ -23,6 +23,7 @@
 <script>
 const Big = require('big.js')
 export default {
+  name: 'x-number',
   props: {
     min: Number,
     max: Number,
@@ -75,6 +76,11 @@ export default {
     },
     disabledMax () {
       return typeof this.max === 'undefined' ? false : (this.currentValue === '' ? true : this.currentValue >= this.max)
+    },
+    labelClass () {
+      return {
+        'vux-cell-justify': this.$parent.labelAlign === 'justify' || this.$parent.$parent.labelAlign === 'justify'
+      }
     }
   },
   watch: {
@@ -98,13 +104,13 @@ export default {
     add () {
       if (!this.disabledMax) {
         const x = new Big(this.currentValue)
-        this.currentValue = x.plus(this.step)
+        this.currentValue = x.plus(this.step) * 1
       }
     },
     sub () {
       if (!this.disabledMin) {
         const x = new Big(this.currentValue)
-        this.currentValue = x.minus(this.step)
+        this.currentValue = x.minus(this.step) * 1
       }
     },
     blur () {

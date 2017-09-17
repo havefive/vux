@@ -1,5 +1,6 @@
 <template>
   <div class="inline-calendar" :class="{'is-weekend-highlight': highlightWeekend}">
+    
     <div class="calendar-header" v-show="!hideHeader">
       <div class="calendar-year">
         <span @click="go(year - 1, month)">
@@ -25,7 +26,7 @@
     <table>
       <thead v-show="!hideWeekList">
         <tr>
-          <th v-for="(week, index) in _weeksList" class="week" :class="`is-week-list-${index}`">{{week}}</th>
+          <th v-for="(week, index) in _weeksList" class="week" :class="`is-week-list-${index}`">{{ week || $t('week_day_' + index /* en: week, zh-CN: week */) }}</th>
         </tr>
       </thead>
       <tbody>
@@ -34,8 +35,8 @@
           v-for="(child,k2) in day"
           :data-date="formatDate(year, month, child)"
           :data-current="currentValue"
-          :class="buildClass(k2, child, formatDate(year, month, child) === currentValue && !child.isLastMonth && !child.isNextMonth)"
-          @click="select(k1,k2,child)">
+          :class="buildClass(k2, child)"
+          @click="select(k1, k2, child)">
             <slot
             :year="year"
             :month="month"
@@ -48,7 +49,14 @@
             name="each-day">
               <span
               class="vux-calendar-each-date"
-              v-show="showChild(year, month, child)">{{replaceText(child.day, formatDate(year, month, child))}}</span>
+              :style="getMarkStyle(child)"
+              v-show="showChild(year, month, child)">
+                {{replaceText(child.day, formatDate(year, month, child))}}
+                <span class="vux-calendar-top-tip" v-if="isShowTopTip(child)" :style="isShowTopTip(child, 'style')">
+                  <span>{{ isShowTopTip(child, 'text') }}</span>
+                </span>
+              </span>
+              <span class="vux-calendar-dot" v-show="isShowBottomDot(child)"></span>
               <div v-html="renderFunction(k1, k2, child)" v-show="showChild(year, month, child)"></div>
             </slot>
           </td>
@@ -58,36 +66,88 @@
   </div>
 </template>
 
+<i18n>
+week_day_0:
+  en: Su
+  zh-CN: 日
+week_day_1:
+  en: Mo
+  zh-CN: 一
+week_day_2:
+  en: Tu
+  zh-CN: 二
+week_day_3:
+  en: We
+  zh-CN: 三
+week_day_4:
+  en: Th
+  zh-CN: 四
+week_day_5:
+  en: Fr
+  zh-CN: 五
+week_day_6:
+  en: Sa
+  zh-CN: 六
+</i18n>
+
 <script>
 import format from '../datetime/format'
 import { getDays, zero } from './util'
 import props from './props'
+import calendarMarksMixin from '../../mixins/calendar-marks'
 
 export default {
+  name: 'inline-calendar',
+  mixins: [calendarMarksMixin],
   props: props(),
   data () {
     return {
+      multi: false,
       year: 0,
       month: 0,
       days: [],
       today: format(new Date(), 'YYYY-MM-DD'),
-      months: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
-      currentValue: ''
+      months: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+      currentValue: '',
+      viewChangeEventCount: -1
     }
   },
   created () {
     this.currentValue = this.value
+    this.multi = Object.prototype.toString.call(this.currentValue) === '[object Array]'
   },
   mounted () {
-    this.currentValue = this.convertDate(this.currentValue)
+    if (this.multi) {
+      for (let i = 0; i < this.currentValue.length; i++) {
+        this.$set(this.currentValue, i, this.convertDate(this.currentValue[i]))
+      }
+    } else {
+      this.currentValue = this.convertDate(this.currentValue)
+    }
+
     this.render(this.renderMonth[0], this.renderMonth[1] - 1)
   },
   computed: {
     _weeksList () {
-      if (!this.weeksList || !this.weeksList.length) {
-        return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
-      } else {
+      if (this.weeksList && this.weeksList.length) {
         return this.weeksList
+      }
+      if (!this.weeksList || !this.weeksList.length) {
+        // tip for older vux-loader
+        if (typeof V_LOCALE === 'undefined') {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[VUX warn] 抱歉，inline-calendar 组件需要升级 vux-loader 到最新版本才能正常使用')
+          }
+          return ['日', '一', '二', '三', '四', '五', '六']
+        } else {
+          if (V_LOCALE === 'en') { // eslint-disable-line
+            return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+          } else if (V_LOCALE === 'zh-CN') { // eslint-disable-line
+            return ['日', '一', '二', '三', '四', '五', '六']
+          } else if (V_LOCALE === 'MULTI') { // eslint-disable-line
+            return [0, 0, 0, 0, 0, 0, 0]
+          }
+        }
       }
     },
     _replaceTextList () {
@@ -96,24 +156,32 @@ export default {
         rs[this.convertDate(i)] = this.replaceTextList[i]
       }
       return rs
+    },
+    currentYearMonth () {
+      return this.year + this.month
     }
   },
   watch: {
     value (val) {
-      this.currentValue = val
+      this.currentValue = this.multi ? val : this.convertDate(val)
     },
     currentValue (val) {
-      this.currentValue = this.convertDate(val)
+      const value = this.multi ? this.currentValue[this.currentValue.length - 1] : this.currentValue
       if (this.renderOnValueChange) {
-        this.render(null, null, val)
+        this.render(null, null, value)
       } else {
-        this.render(this.year, this.month, this.currentValue)
+        this.render(this.year, this.month, value)
       }
-      this.$emit('input', val)
-      this.$emit('on-change', val)
+      this.$emit('input', this.currentValue)
+      this.$emit('on-change', this.currentValue)
     },
     renderFunction () {
       this.render(this.year, this.month, this.currentValue)
+    },
+    renderMonth (val) {
+      if (val && val.length === 2) {
+        this.render(val[0], val[1] - 1)
+      }
     },
     returnSixRows (val) {
       this.render(this.year, this.month, this.currentValue)
@@ -129,9 +197,62 @@ export default {
     },
     disableFuture () {
       this.render(this.year, this.month, this.currentValue)
+    },
+    currentYearMonth () {
+      const lastLine = this.days[this.days.length - 1]
+      const lastDate = lastLine[lastLine.length - 1]
+
+      let days = []
+      this.days.forEach(line => {
+        days = days.concat(line)
+      })
+      days = days.filter(date => {
+        return !date.isLastMonth && !date.isNextMonth
+      })
+      this.viewChangeEventCount++
+      this.$emit('on-view-change', {
+        year: this.year,
+        month: this.month + 1,
+        firstDate: this.days[0][0].formatedDate,
+        lastDate: lastDate.formatedDate,
+        firstCurrentMonthDate: days[0].formatedDate,
+        lastCurrentMonthDate: days[days.length - 1].formatedDate,
+        allDates: this.days
+      }, this.viewChangeEventCount)
     }
   },
   methods: {
+    switchViewToToday () {
+      const today = new Date()
+      this.render(today.getFullYear(), today.getMonth())
+    },
+    switchViewToCurrentValue () {
+      if (!this.currentValue || (this.multi && !this.currentValue.length)) {
+        return
+      }
+
+      let value
+      let year
+      let month
+      if (typeof this.currentValue === 'string') {
+        value = this.currentValue
+      } else {
+        value = this.currentValue[0]
+      }
+      const splitList = value.split('-')
+      year = parseInt(splitList[0], 10)
+      month = parseInt(splitList[1], 10)
+      this.switchViewToMonth(year, month)
+    },
+    switchViewToMonth (year, month) {
+      if (!year || !month) {
+        return this.switchViewToToday()
+      }
+      this.render(year, month - 1)
+    },
+    getDates () {
+      return this.days
+    },
     replaceText (day, formatDay) {
       let text = this._replaceTextList[formatDay]
       if (!text && typeof text === 'undefined') {
@@ -143,7 +264,15 @@ export default {
     convertDate (date) {
       return date === 'TODAY' ? this.today : date
     },
-    buildClass (index, child, isCurrent) {
+    buildClass (index, child) {
+      let isCurrent = false
+      if (!child.isLastMonth && !child.isNextMonth) {
+        if (this.multi && this.currentValue.length > 0) {
+          isCurrent = this.currentValue.indexOf(this.formatDate(this.year, this.month, child)) > -1
+        } else {
+          isCurrent = this.currentValue === this.formatDate(this.year, this.month, child)
+        }
+      }
       const className = {
         current: child.current || isCurrent,
         'is-disabled': child.disabled,
@@ -153,10 +282,12 @@ export default {
       return className
     },
     render (year, month) {
-      let data = getDays({
+      let data = null
+      const value = this.multi ? this.currentValue[this.currentValue.length - 1] : this.currentValue
+      data = getDays({
         year: year,
         month: month,
-        value: this.currentValue,
+        value,
         rangeBegin: this.convertDate(this.startDate),
         rangeEnd: this.convertDate(this.endDate),
         returnSixRows: this.returnSixRows,
@@ -192,15 +323,50 @@ export default {
       this.render(year, month)
     },
     select (k1, k2, data) {
+      if (data.isLastMonth && !this.showLastMonth) {
+        return
+      }
+      if (data.isNextMonth && !this.showNextMonth) {
+        return
+      }
       if (!data.isBetween) {
         return
       }
+      let _currentValue = null
       if (!data.isLastMonth && !data.isNextMonth) {
         this.days[k1][k2].current = true
-        this.currentValue = [this.year, zero(this.month + 1), zero(this.days[k1][k2].day)].join('-')
+        _currentValue = [this.year, zero(this.month + 1), zero(this.days[k1][k2].day)].join('-')
       } else {
-        this.currentValue = [data.year, zero(data.month + 1), zero(data.day)].join('-')
+        _currentValue = [data.year, zero(data.month + 1), zero(data.day)].join('-')
       }
+      if (this.multi) {
+        let index = this.currentValue.indexOf(_currentValue)
+        if (index > -1) {
+          this.currentValue.splice(index, 1)
+        } else {
+          this.currentValue.push(_currentValue)
+        }
+      } else {
+        this.currentValue = _currentValue
+      }
+
+      this.currentValueChange()
+    },
+    currentValueChange () {
+      if (this.multi) {
+        for (let i = 0; i < this.currentValue.length; i++) {
+          this.$set(this.currentValue, i, this.convertDate(this.currentValue[i]))
+        }
+      } else {
+        this.currentValue = this.convertDate(this.currentValue)
+      }
+      const value = this.multi ? this.currentValue[this.currentValue.length - 1] : this.currentValue
+      if (this.renderOnValueChange) {
+        this.render(null, null, value)
+      } else {
+        this.render(this.year, this.month, value)
+      }
+      this.$emit('input', this.currentValue)
     },
     showChild (year, month, child) {
       if (this.replaceText(child.day, this.formatDate(year, month, child))) {
@@ -212,7 +378,7 @@ export default {
   }
 }
 </script>
- 
+
 <style lang="less">
 @import '../../styles/variable.less';
 
@@ -310,7 +476,7 @@ export default {
 }
 .inline-calendar {
   width: 100%;
-  background: #fff;
+  background-color: @calendar-bg-color;
   border-radius: 2px;
   transition: all .5s ease;
 }
@@ -358,15 +524,44 @@ export default {
   color: @calendar-disabled-font-color;
 }
 .inline-calendar td > span.vux-calendar-each-date {
+  position: relative;
   display: inline-block;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
+  width: @calendar-each-date-item-size;
+  height: @calendar-each-date-item-size;
+  line-height: @calendar-each-date-item-line-height;
   border-radius: 50%;
   text-align: center;
+  border: 1px solid transparent;
+  box-sizing: border-box;
 }
 .inline-calendar td.current > span.vux-calendar-each-date {
   background-color: @calendar-selected-bg-color;
   color: #fff!important;
+}
+.inline-calendar th {
+  color: @calendar-header-day-item-color;
+  font-weight: normal;
+}
+
+/** same as week-calendar style**/
+.vux-calendar-top-tip {
+  position: absolute;
+  left: -10px;
+  top: 0;
+  font-size: 20px;
+  transform: scale(0.5);
+  transform-origin: top left;
+}
+.vux-calendar-dot {
+  display: block;
+  text-align: center;
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  left: 50%;
+  bottom: 0px;
+  margin-left: -2.5px;
+  background-color: #f74c31;
+  border-radius: 50%;
 }
 </style>

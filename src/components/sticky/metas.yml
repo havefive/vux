@@ -38,6 +38,10 @@ extra: |
   </div>
   ```
 
+  <p class="warning">
+  请不要直接照抄 demo 代码，滚动容器为 window 时请不要指定 scroll-box，滚动容器并非使用 `view-box` 时 id 并不是 `vux_view_box_body`，请按照实际情况来设定。
+  </p>
+
 props:
   scroll-box:
     default: window
@@ -57,7 +61,24 @@ slots:
   default:
     en: content
     zh-CN: 内容插槽
+methods: 
+  bindSticky:
+    version: v2.5.4
+    en: manually re-bind sticky
+    zh-CN: 手动重新绑定，用于内容变化导致位置变化定位不再正确的情况
 changes:
+  v2.5.9:
+    en:
+      - '[fix] Fix scrollTop always return 0 #1827'
+    zh-CN:
+      - '[fix] 修复 scrollTop 总是返回0的问题 #1827'
+  v2.5.4:
+    en:
+      - '[fix] Auto re-bind after router-view transition is finished'
+      - '[fix] Fix position fixed not work in ios #1657'
+    zh-CN:
+      - '[fix] 在 router-view 动画结束后自动重新绑定'
+      - '[fix] 修复在ios上fixed不生效的问题 #1657'
   v2.1.1-rc.1:
     en:
       - '[fix] Fix wrong offset after transition between routes'
